@@ -6,11 +6,22 @@ services:
     name: familytree-app
     env: node
     plan: free
-    buildCommand: npm install
+    # better-sqlite3는 네이티브 모듈이므로 rebuild 필요
+    buildCommand: npm install && npm rebuild better-sqlite3
     startCommand: npm start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
+      - key: DB_PATH
+        value: /tmp/familytree.db
     autoDeploy: true
+    
+    # 영구 디스크 설정 (유료 플랜에서만 사용 가능)
+    # 무료 플랜에서는 재시작 시 데이터가 초기화됩니다
+    # 데이터 영구 보존이 필요하면 유료 플랜으로 업그레이드 후 아래 주석 해제
+    # disk:
+    #   name: familytree-data
+    #   mountPath: /data
+    #   sizeGB: 1
 

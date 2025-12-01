@@ -41,14 +41,20 @@ git push -u origin main
 4. 다음 설정 입력:
    - **Name**: `familytree-app` (원하는 이름)
    - **Environment**: `Node`
-   - **Build Command**: `npm install`
+   - **Build Command**: `npm install && npm rebuild better-sqlite3`
    - **Start Command**: `npm start`
    - **Instance Type**: `Free`
 5. "Advanced" 섹션에서 환경 변수 추가:
    ```
    NODE_ENV=production
+   DB_PATH=/tmp/familytree.db
    ```
 6. "Create Web Service" 클릭
+
+> **⚠️ 중요 사항:**
+> - `better-sqlite3`는 네이티브 모듈이므로 `npm rebuild better-sqlite3` 명령이 필수입니다.
+> - 무료 플랜에서는 데이터베이스가 `/tmp`에 저장되며, 재시작 시 초기화됩니다.
+> - 데이터 영구 보존이 필요하면 Render의 유료 플랜으로 업그레이드하여 Persistent Disk를 사용하세요.
 
 #### 3. 자동 초기화
 
@@ -65,6 +71,22 @@ git push -u origin main
 - 무료 플랜: 15분 비활성 시 슬립 모드 (첫 접속 시 느림)
 - 매달 750시간 무료 제공
 - SQLite 파일은 재배포 시 초기화됨 (영구 스토리지 필요 시 유료 플랜)
+- **네이티브 모듈 빌드**: `better-sqlite3`는 C++ 기반 네이티브 모듈이므로 빌드 시간이 다소 소요됩니다 (약 2-3분)
+
+### 빌드 오류 해결
+
+만약 배포 시 빌드 오류가 발생하면 다음을 확인하세요:
+
+1. **빌드 명령어 확인**:
+   ```bash
+   npm install && npm rebuild better-sqlite3
+   ```
+   
+2. **Node.js 버전**: `package.json`에 명시된 버전(16.0.0 이상) 확인
+
+3. **Render 로그 확인**: 대시보드에서 Build Logs를 확인하여 구체적인 오류 메시지 확인
+
+4. **대체 방법**: `render.yaml` 파일이 있으면 자동으로 설정이 적용됩니다
 
 ---
 

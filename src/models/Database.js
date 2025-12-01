@@ -2,14 +2,17 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
+// 환경 변수에서 DB 경로 가져오기 (없으면 기본값 사용)
+const dbPath = process.env.DB_PATH || path.join(__dirname, '../../data/familytree.db');
+
 // 데이터 디렉토리 확인 및 생성
-const dataDir = path.join(__dirname, '../../data');
+const dataDir = path.dirname(dbPath);
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
+  console.log(`📁 데이터 디렉토리 생성: ${dataDir}`);
 }
 
 // SQLite 데이터베이스 연결
-const dbPath = path.join(dataDir, 'familytree.db');
 const db = new Database(dbPath);
 
 // WAL 모드 활성화 (성능 향상 및 동시성 개선)
