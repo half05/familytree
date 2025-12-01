@@ -1,0 +1,571 @@
+/* 가계도 전용 스타일 */
+
+.tree-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  padding: 40px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+/* 가계도 컨테이너 */
+.family-tree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  min-width: max-content;
+  transition: transform 0.3s ease;
+}
+
+/* 세대 레벨 */
+.generation-level {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 0;
+  position: relative;
+  width: 100%;
+}
+
+.generation-title {
+  font-weight: bold;
+  color: var(--primary-color);
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  margin-top: 30px;
+  padding: 8px 20px;
+  background: #e6fffa;
+  border-radius: 20px;
+}
+
+/* 첫 번째 세대는 상단 여백 없음 */
+.generation-level:first-child .generation-title {
+  margin-top: 0;
+}
+
+/* 가족 단위들을 가로로 나열 */
+.family-units {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 80px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.generation-level > .family-units {
+  margin-bottom: 0;
+}
+
+/* 가족 단위 (부부 + 자녀) - 재귀적으로 중첩 가능 */
+.family-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  min-width: fit-content;
+}
+
+/* 자녀 wrapper 안의 family-unit은 자녀 단위 */
+.child-wrapper > .family-unit {
+  width: 100%;
+}
+
+/* 부부 쌍 */
+.couple {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  position: relative;
+  margin-bottom: 0;
+  padding: 0 10px;
+}
+
+/* 배우자 연결선 (부드럽고 선명하게) */
+.couple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  right: 10px;
+  height: 3px;
+  background: var(--primary-color);
+  z-index: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 부부에서 자녀로 내려가는 수직선 (자녀가 있을 때만!) */
+.couple.has-children {
+  margin-bottom: 50px;
+}
+
+.couple.has-children::before {
+  content: '';
+  position: absolute;
+  bottom: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 50px;
+  background: var(--primary-color);
+  z-index: 0;
+  box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 자녀가 없는 부부는 하단 여백과 선이 없음 */
+.couple.no-children {
+  margin-bottom: 0;
+}
+
+.couple.no-children::before {
+  display: none;
+}
+
+/* 자녀 컨테이너 */
+.children-container {
+  display: flex;
+  gap: 40px;
+  position: relative;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* 여러 자녀가 있을 때 수평선 (부드럽게) */
+.children-container.multiple::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 3px;
+  background: var(--primary-color);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 각 자녀 래퍼 */
+.child-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 0;
+}
+
+/* 여러 자녀일 때만 수직선 (부드럽게) */
+.children-container.multiple .child-wrapper {
+  padding-top: 40px;
+}
+
+.children-container.multiple .child-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 40px;
+  background: var(--primary-color);
+  box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 자녀가 한 명일 때는 부모에서 직접 연결 */
+.children-container:not(.multiple) {
+  margin-top: 0;
+}
+
+.children-container:not(.multiple) .child-wrapper {
+  padding-top: 0;
+}
+
+/* 중첩된 family-unit 간 간격 */
+.child-wrapper .family-unit {
+  margin-top: 0;
+}
+
+/* 자녀 wrapper 간격 조정 */
+.child-wrapper {
+  margin-bottom: 0;
+}
+
+/* 사람 노드 */
+.tree-person {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+  background: white;
+  border: 3px solid var(--border-color);
+  border-radius: 12px;
+  min-width: 120px;
+  max-width: 150px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position: relative;
+  z-index: 10;
+}
+
+.tree-person:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+  z-index: 10;
+}
+
+.tree-person.male {
+  border-color: #4299e1;
+}
+
+.tree-person.female {
+  border-color: #ed64a6;
+}
+
+.tree-person.deceased {
+  opacity: 0.7;
+  border-style: dashed;
+}
+
+/* 사람 사진 */
+.tree-person-photo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border: 3px solid var(--border-color);
+}
+
+.tree-person.male .tree-person-photo {
+  border-color: #4299e1;
+}
+
+.tree-person.female .tree-person-photo {
+  border-color: #ed64a6;
+}
+
+/* 사람 정보 */
+.tree-person-name {
+  font-weight: bold;
+  font-size: 0.95rem;
+  text-align: center;
+  color: var(--text-color);
+  margin-bottom: 4px;
+}
+
+.tree-person-birth {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.tree-person-status {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* 루트 강조 */
+.tree-person.root {
+  border-width: 3px;
+  border-color: var(--secondary-color);
+  box-shadow: 0 4px 16px rgba(44, 122, 123, 0.3);
+}
+
+/* 빈 노드 (배우자 없음) */
+.tree-person.empty {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* 간소화 모드 */
+.tree-wrapper.compact .tree-person {
+  min-width: 80px;
+  max-width: 100px;
+  padding: 10px;
+  border-width: 2px;
+}
+
+.tree-wrapper.compact .tree-person-photo {
+  width: 50px;
+  height: 50px;
+}
+
+.tree-wrapper.compact .tree-person-name {
+  font-size: 0.8rem;
+}
+
+.tree-wrapper.compact .tree-person-birth {
+  font-size: 0.7rem;
+}
+
+.tree-wrapper.compact .family-units {
+  gap: 60px;
+}
+
+.tree-wrapper.compact .couple {
+  gap: 15px;
+  margin-bottom: 0;
+}
+
+.tree-wrapper.compact .couple::after {
+  height: 2px;
+}
+
+.tree-wrapper.compact .couple.has-children {
+  margin-bottom: 35px;
+}
+
+.tree-wrapper.compact .couple.has-children::before {
+  bottom: -35px;
+  height: 35px;
+  width: 2px;
+}
+
+.tree-wrapper.compact .couple.no-children {
+  margin-bottom: 0;
+}
+
+.tree-wrapper.compact .couple.no-children::before {
+  display: none;
+}
+
+.tree-wrapper.compact .children-container {
+  gap: 25px;
+}
+
+.tree-wrapper.compact .children-container.multiple::before {
+  height: 2px;
+}
+
+.tree-wrapper.compact .children-container.multiple .child-wrapper {
+  padding-top: 30px;
+}
+
+.tree-wrapper.compact .children-container:not(.multiple) .child-wrapper {
+  padding-top: 0;
+}
+
+.tree-wrapper.compact .children-container.multiple .child-wrapper::before {
+  height: 30px;
+  width: 2px;
+  box-shadow: 1px 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.tree-wrapper.compact .children-container.multiple::before {
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+/* 반응형 */
+@media (max-width: 1200px) {
+  .family-units {
+    gap: 60px;
+  }
+  
+  .children-container {
+    gap: 25px;
+  }
+  
+  .tree-person {
+    min-width: 100px;
+    max-width: 120px;
+    padding: 12px;
+    border-width: 2px;
+  }
+  
+  .tree-person-photo {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .tree-person-name {
+    font-size: 0.85rem;
+  }
+  
+  .couple {
+    gap: 20px;
+    margin-bottom: 0;
+  }
+  
+  .couple::after {
+    height: 2px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  }
+  
+  .couple.has-children {
+    margin-bottom: 40px;
+  }
+  
+  .couple.has-children::before {
+    bottom: -40px;
+    height: 40px;
+    width: 2px;
+    box-shadow: 1px 0 1px rgba(0, 0, 0, 0.1);
+  }
+  
+  .couple.no-children {
+    margin-bottom: 0;
+  }
+  
+  .couple.no-children::before {
+    display: none;
+  }
+  
+  .children-container.multiple .child-wrapper {
+    padding-top: 35px;
+  }
+  
+  .children-container:not(.multiple) .child-wrapper {
+    padding-top: 0;
+  }
+  
+  .children-container.multiple .child-wrapper::before {
+    height: 35px;
+    width: 2px;
+    box-shadow: 1px 0 1px rgba(0, 0, 0, 0.1);
+  }
+  
+  .children-container.multiple::before {
+    height: 2px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (max-width: 768px) {
+  .tree-wrapper {
+    padding: 20px;
+  }
+  
+  .family-tree {
+    gap: 40px;
+  }
+  
+  .generation-title {
+    font-size: 1rem;
+    margin-bottom: 20px;
+  }
+  
+  .family-units {
+    gap: 40px;
+    flex-direction: column;
+  }
+  
+  .couple {
+    gap: 15px;
+    margin-bottom: 0;
+  }
+  
+  .couple::after {
+    height: 2px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  }
+  
+  .couple.has-children {
+    margin-bottom: 35px;
+  }
+  
+  .couple.has-children::before {
+    bottom: -35px;
+    height: 35px;
+    width: 2px;
+    box-shadow: 1px 0 1px rgba(0, 0, 0, 0.1);
+  }
+  
+  .couple.no-children {
+    margin-bottom: 0;
+  }
+  
+  .couple.no-children::before {
+    display: none;
+  }
+  
+  .tree-person {
+    min-width: 80px;
+    max-width: 100px;
+    padding: 10px;
+    border-width: 2px;
+  }
+  
+  .tree-person-photo {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .tree-person-name {
+    font-size: 0.75rem;
+  }
+  
+  .tree-person-birth {
+    font-size: 0.7rem;
+  }
+  
+  .children-container {
+    gap: 20px;
+  }
+  
+  .children-container.multiple .child-wrapper {
+    padding-top: 30px;
+  }
+  
+  .children-container:not(.multiple) .child-wrapper {
+    padding-top: 0;
+  }
+  
+  .children-container.multiple .child-wrapper::before {
+    height: 30px;
+    width: 2px;
+    box-shadow: 1px 0 1px rgba(0, 0, 0, 0.1);
+  }
+  
+  .children-container.multiple::before {
+    height: 2px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* 로딩 및 빈 상태 */
+.tree-loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+
+.tree-empty {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.tree-empty-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+/* 확대/축소 컨트롤 */
+.tree-zoom-controls {
+  position: sticky;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+  z-index: 100;
+}
+
+.tree-zoom-btn {
+  padding: 8px 16px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.tree-zoom-btn:hover {
+  background: var(--secondary-color);
+  transform: scale(1.05);
+}
+

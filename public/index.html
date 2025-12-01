@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>가족 트리 - Family Tree</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/tree.css">
+</head>
+<body>
+  <div class="container">
+    <!-- 헤더 -->
+    <header class="header">
+      <div class="header-content">
+        <div>
+          <h1>🌳 가족 트리</h1>
+          <p>우리 가족의 이야기를 기록하고 공유하세요</p>
+        </div>
+        <div class="family-tree-selector">
+          <label for="family-tree-select">가계도:</label>
+          <select id="family-tree-select" class="family-tree-select">
+            <option value="">로딩 중...</option>
+          </select>
+          <button id="manage-trees-btn" class="btn btn-secondary">관리</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 네비게이션 -->
+    <nav class="nav">
+      <button class="nav-btn active" data-page="dashboard">대시보드</button>
+      <button class="nav-btn" data-page="persons">가족 구성원</button>
+      <button class="nav-btn" data-page="tree">가계도</button>
+      <button class="nav-btn" data-page="add">새 가족 추가</button>
+      <button class="nav-btn" data-page="manage-trees">가계도 관리</button>
+    </nav>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="main">
+      <!-- 대시보드 페이지 -->
+      <div id="dashboard-page" class="page active">
+        <h2>대시보드</h2>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-label">총 가족 구성원</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">💚</div>
+            <div class="stat-value" id="stat-alive">0</div>
+            <div class="stat-label">생존</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">👨</div>
+            <div class="stat-value" id="stat-male">0</div>
+            <div class="stat-label">남성</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">👩</div>
+            <div class="stat-value" id="stat-female">0</div>
+            <div class="stat-label">여성</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">🔢</div>
+            <div class="stat-value" id="stat-generations">0</div>
+            <div class="stat-label">세대</div>
+          </div>
+        </div>
+
+        <div class="recent-section">
+          <h3>최근 추가된 가족</h3>
+          <div id="recent-persons" class="persons-grid"></div>
+        </div>
+      </div>
+
+      <!-- 가족 구성원 페이지 -->
+      <div id="persons-page" class="page">
+        <div class="page-header">
+          <h2>가족 구성원</h2>
+          <div class="search-box">
+            <input type="text" id="search-input" placeholder="이름, 전화번호, 이메일로 검색...">
+          </div>
+        </div>
+
+        <div class="filters">
+          <label>
+            <input type="checkbox" id="filter-alive" checked> 생존만 보기
+          </label>
+          <select id="filter-gender">
+            <option value="">모든 성별</option>
+            <option value="male">남성</option>
+            <option value="female">여성</option>
+          </select>
+          <select id="filter-generation">
+            <option value="">모든 세대</option>
+          </select>
+        </div>
+
+        <div id="persons-list" class="persons-grid"></div>
+      </div>
+
+      <!-- 가계도 페이지 -->
+      <div id="tree-page" class="page">
+        <h2>가계도</h2>
+        <div class="tree-controls">
+          <label>
+            중심 인물:
+            <select id="tree-root-select">
+              <option value="">전체 보기</option>
+            </select>
+          </label>
+          <label style="margin-left: 20px;">
+            <input type="checkbox" id="tree-compact-mode"> 간소화 모드
+          </label>
+        </div>
+        <div class="tree-zoom-controls">
+          <button class="tree-zoom-btn" onclick="zoomTree(0.9)">🔍−</button>
+          <button class="tree-zoom-btn" onclick="zoomTree(1)">100%</button>
+          <button class="tree-zoom-btn" onclick="zoomTree(1.1)">🔍+</button>
+        </div>
+        <div class="tree-wrapper" id="tree-wrapper">
+          <div id="tree-container" class="tree-container">
+            <p class="tree-loading">가계도를 불러오는 중...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 가계도 관리 페이지 -->
+      <div id="manage-trees-page" class="page">
+        <div class="page-header">
+          <h2>가계도 관리</h2>
+          <button id="create-tree-btn" class="btn btn-primary">새 가계도 만들기</button>
+        </div>
+
+        <div id="family-trees-list" class="family-trees-grid"></div>
+
+        <!-- 새 가계도 생성 폼 (숨김) -->
+        <div id="create-tree-form-container" class="form-container" style="display: none;">
+          <h3>새 가계도 만들기</h3>
+          <form id="create-tree-form" class="form">
+            <div class="form-group">
+              <label for="tree-name">가계도 이름 *</label>
+              <input type="text" id="tree-name" name="name" required placeholder="예: 김씨 가문">
+            </div>
+            <div class="form-group">
+              <label for="tree-description">설명</label>
+              <textarea id="tree-description" name="description" rows="3" placeholder="이 가계도에 대한 설명을 입력하세요"></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">생성</button>
+              <button type="button" id="cancel-create-tree" class="btn btn-secondary">취소</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- 새 가족 추가 페이지 -->
+      <div id="add-page" class="page">
+        <h2>새 가족 구성원 추가</h2>
+        <form id="add-person-form" class="form">
+          <div class="form-group">
+            <label for="name">이름 *</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="gender">성별</label>
+              <select id="gender" name="gender">
+                <option value="">선택 안함</option>
+                <option value="male">남성</option>
+                <option value="female">여성</option>
+                <option value="other">기타</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="birth_date">생년월일</label>
+              <input type="date" id="birth_date" name="birth_date">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="phone_number">전화번호</label>
+              <input type="tel" id="phone_number" name="phone_number" placeholder="010-0000-0000">
+            </div>
+
+            <div class="form-group">
+              <label for="email">이메일</label>
+              <input type="email" id="email" name="email">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="address">주소</label>
+            <input type="text" id="address" name="address">
+          </div>
+
+          <div class="form-group">
+            <label for="occupation">직업</label>
+            <input type="text" id="occupation" name="occupation">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="father_id">아버지</label>
+              <select id="father_id" name="father_id">
+                <option value="">선택</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="mother_id">어머니</label>
+              <select id="mother_id" name="mother_id">
+                <option value="">선택</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="spouse_id">배우자</label>
+            <select id="spouse_id" name="spouse_id">
+              <option value="">선택</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="photo">사진</label>
+            <input type="file" id="photo" name="photo" accept="image/*">
+            <div id="photo-preview"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="notes">메모</label>
+            <textarea id="notes" name="notes" rows="4"></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">추가</button>
+            <button type="reset" class="btn btn-secondary">초기화</button>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+      <p>&copy; 2024 가족 트리. Made with ❤️</p>
+    </footer>
+  </div>
+
+  <!-- 모달 -->
+  <div id="person-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <div id="person-detail"></div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>
+

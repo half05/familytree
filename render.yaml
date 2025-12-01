@@ -1,0 +1,16 @@
+# Render.com 배포 설정
+# https://render.com/docs/yaml-spec
+
+services:
+  - type: web
+    name: familytree-app
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+    autoDeploy: true
+
